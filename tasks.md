@@ -29,9 +29,9 @@ Design decisions locked in (see the answer set):
 
 ## Phase 1 — Database
 
-- [ ] 1.1 Get PostgreSQL running and create the `whattocook` database [US-1]
+- [x] 1.1 Get PostgreSQL running and create the `whattocook` database [US-1]
   Done when: a connection succeeds and the database exists.
-- [ ] 1.2 Write the database design (tables, fields, data types, relations) [US-1]
+- [x] 1.2 Write the database design (tables, fields, data types, relations) [US-1]
   Done when: design covers `users`, `categories`, `ingredients`, `pantry_items`,
   `recipes`, `meals`, `meal_ingredients`, `prepared_meals` with fields, types and
   relations, and states:
@@ -42,14 +42,14 @@ Design decisions locked in (see the answer set):
   - deleting an ingredient referenced by a meal or pantry item is blocked.
   - marking a meal prepared decrements pantry quantities, floored at 0 (item
     removed at 0), and is blocked on a unit mismatch.
-- [ ] 1.3 Implement the Prisma schema models [US-1]
+- [x] 1.3 Implement the Prisma schema models [US-1]
   Done when: `server/prisma/schema.prisma` contains all models, a `Unit` enum
   (`g`, `kg`, `ml`, `l`, `piece`), `userId` on `ingredients` and `meals`, the
   `Category` model, `recipes.instructions` (required) + `source_url` (optional),
   and relations that block ingredient deletion (`onDelete: Restrict`).
-- [ ] 1.4 Create and apply the first migration [US-1]
+- [x] 1.4 Create and apply the first migration [US-1]
   Done when: `prisma migrate dev` succeeds and the tables exist in Postgres.
-- [ ] 1.5 Seed the fixed category list [US-4]
+- [x] 1.5 Seed the fixed category list [US-4]
   Done when: the 9 categories exist in the database and there is no endpoint that
   creates categories.
 
