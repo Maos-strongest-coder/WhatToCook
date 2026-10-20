@@ -1,15 +1,109 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum Unit {
+  g
+  kg
+  ml
+  l
+  piece
+}
+
+model User {
+  id            Int           @id @default(autoincrement())
+  username      String        @unique
+  email         String        @unique
+  passwordHash  String
+  createdAt     DateTime      @default(now())
+
+  ingredients   Ingredient[]
+  pantryItems   PantryItem[]
+  meals         Meal[]
+  preparedMeals PreparedMeal[]
+}
+
+model Category {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+
+  ingredients Ingredient[]
+}
+
+model Ingredient {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  name       String
+  categoryId Int
+  createdAt  DateTime @default(now())
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category        Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  pantryItems     PantryItem[]
+  mealIngredients MealIngredient[]
+}
+
+model PantryItem {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  ingredientId Int
+  quantity     Float
+  unit         Unit
+  expiryDate   DateTime?
+  createdAt    DateTime  @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+}
+
+model Recipe {
+  id           Int      @id @default(autoincrement())
+  title        String
+  instructions String
+  sourceUrl    String?
+  createdAt    DateTime @default(now())
+
+  meals Meal[]
+}
+
+model Meal {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  name      String
+  recipeId  Int?
+  createdAt DateTime  @default(now())
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe          Recipe?         @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+  mealIngredients MealIngredient[]
+  preparedMeals   PreparedMeal[]
+}
+
+model MealIngredient {
+  id           Int     @id @default(autoincrement())
+  mealId       Int
+  ingredientId Int
+  quantity     Float
+  unit         Unit
+
+  meal       Meal       @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+}
+
+model PreparedMeal {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  mealId     Int
+  preparedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meal Meal @relation(fields: [mealId], references: [id], onDelete: Cascade)
 }
