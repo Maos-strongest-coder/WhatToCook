@@ -24,10 +24,23 @@ There is no `package.json` at the repo root.
 
 ## Architecture / domain
 
-- Core entities: `User`, `Ingredient`, `PantryItem` (inventory item, has expiry),
-  `Recipe`, `MealPlan`, `HabitLog`.
+- Core entities: `User`, `Category` (seeded fixed list), `Ingredient` (per user),
+  `PantryItem` (per user; has quantity, unit and expiry), `Recipe` (shared
+  catalog; required `instructions` + optional `source_url`), `Meal` (per user),
+  `MealIngredient` (meal<->ingredient link with quantity + unit), `PreparedMeal`
+  (log that feeds the top 5).
 - Key flows: inventory tracking -> recipe matching -> meal suggestions ->
   habit insights.
+- `ingredients` and `meals` are per user (`userId`); `recipes` are a shared
+  catalog (no `userId`).
+- Units are a Prisma enum (`g`, `kg`, `ml`, `l`, `piece`). Categories are a
+  seeded fixed list (vegetables, fruit, dairy, meat, fish, grains, spices,
+  drinks, other); users cannot create them.
+- Marking a meal prepared decrements the matching pantry quantities, floored at
+  0 (the item is removed at 0), and is blocked with a clear error on a unit
+  mismatch.
+- Deleting an ingredient used in a meal or pantry item is blocked with a clear
+  error, never cascade-deleted.
 - The Express API owns all database access; the Vue client must never talk to
   Postgres directly.
 - Client and server are built and tested independently.
@@ -65,3 +78,4 @@ Run each command from inside the relevant project directory (`client/` or
   and commit messages in English.
 - Never commit `.env` / secrets; load config via env variables.
 - Keep API routes under a versioned prefix (e.g. `/api/...`).
+- Work is tracked in `tasks.md`; commit and push after each phase is completed.
